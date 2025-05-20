@@ -1,4 +1,4 @@
-class DualScreenApp {
+ï»¿class DualScreenApp {
     constructor() {
         this.rectangles = [];
         this.selectedRectangle = null;
@@ -14,28 +14,28 @@ class DualScreenApp {
         this.init();
     }
     async init() {
-        this.×¢²á¿ì½İ¼ü();
-        await this.¶Áµµ();
-        this.»æÖÆËùÓĞÇø¿é();
+        this.æ³¨å†Œå¿«æ·é”®();
+        await this.è¯»æ¡£();
+        this.ç»˜åˆ¶æ‰€æœ‰åŒºå—();
     }
-    ×¢²á¿ì½İ¼ü() {
-        this.screenA.addEventListener('dblclick', (e) => this.´´½¨Çø¿é(e, 'A'));//ĞÂ½¨Çø¿é
+    æ³¨å†Œå¿«æ·é”®() {
+        this.screenA.addEventListener('dblclick', (e) => this.åˆ›å»ºåŒºå—(e, 'A'));//æ–°å»ºåŒºå—
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Delete' && this.selectedRectangle) {
-                this.É¾³ıÇø¿é(this.selectedRectangle.id);
+                this.åˆ é™¤åŒºå—(this.selectedRectangle.id);
             }
-        });//É¾³ıÇø¿é
+        });//åˆ é™¤åŒºå—
         document.addEventListener('click', (e) => {
             if (!e.target.closest('.rectangle')) {
-                this.Ñ¡ÖĞÇø¿é(null);
+                this.é€‰ä¸­åŒºå—(null);
             }
-        });//Ñ¡ÔñÇø¿é
-        this.screenA.addEventListener('mouseenter', () => this.screenA.classList.add('focus'));//Ğü¸¡Çø¿é
+        });//é€‰æ‹©åŒºå—
+        this.screenA.addEventListener('mouseenter', () => this.screenA.classList.add('focus'));//æ‚¬æµ®åŒºå—
         this.screenA.addEventListener('mouseleave', () => this.screenA.classList.remove('focus'));
         this.screenB.addEventListener('mouseenter', () => this.screenB.classList.add('focus'));
         this.screenB.addEventListener('mouseleave', () => this.screenB.classList.remove('focus'));
     }
-    async ¶Áµµ() {
+    async è¯»æ¡£() {
         try {
             const response = await fetch('/api/rectangles');
             const data = await response.json();
@@ -45,7 +45,7 @@ class DualScreenApp {
             this.rectangles = [];
         }
     }
-    async ´´½¨Çø¿é(event, screen) {
+    async åˆ›å»ºåŒºå—(event, screen) {
         if (event.target.classList.contains('rectangle')) return;
 
         const rect = screen === 'A' ? this.screenA.getBoundingClientRect() : this.screenB.getBoundingClientRect();
@@ -76,21 +76,21 @@ class DualScreenApp {
             const result = await response.json();
             if (result.success) {
                 this.rectangles.push(result.rectangle);
-                this.»æÖÆËùÓĞÇø¿é();
+                this.ç»˜åˆ¶æ‰€æœ‰åŒºå—();
             }
         } catch (error) {
             console.error('Failed to create rectangle:', error);
         }
     }
-    »æÖÆËùÓĞÇø¿é() {
+    ç»˜åˆ¶æ‰€æœ‰åŒºå—() {
         const existingRects = document.querySelectorAll('.rectangle');
-        existingRects.forEach(rect => rect.remove());//Èç¹ûÓĞ£¬ÄÇÃ´ÏÈÇå³ı´æÔÚµÄÇø¿é
-        this.rectangles.forEach(rectData => { //»æÖÆÇø¿é
-            this.»æÖÆÇø¿é(rectData, 'A');
-            this.»æÖÆÇø¿é(rectData, 'B');
+        existingRects.forEach(rect => rect.remove());//å¦‚æœæœ‰ï¼Œé‚£ä¹ˆå…ˆæ¸…é™¤å­˜åœ¨çš„åŒºå—
+        this.rectangles.forEach(rectData => { //ç»˜åˆ¶åŒºå—
+            this.ç»˜åˆ¶åŒºå—(rectData, 'A');
+            this.ç»˜åˆ¶åŒºå—(rectData, 'B');
         });
     }
-    »æÖÆÇø¿é(rectData, screen) {
+    ç»˜åˆ¶åŒºå—(rectData, screen) {
         const rectangle = document.createElement('div');
         rectangle.className = `rectangle ${screen === 'B' ? 'screenB' : ''}`;
         rectangle.dataset.id = rectData.id;
@@ -113,20 +113,20 @@ class DualScreenApp {
 
         rectangle.addEventListener('click', (e) => {
             e.stopPropagation();
-            this.Ñ¡ÖĞÇø¿é(rectData);
+            this.é€‰ä¸­åŒºå—(rectData);
         });
 
         rectangle.addEventListener('dblclick', (e) => {
             e.stopPropagation();
             if (screen === 'A') {
-                this.±à¼­Çø¿é(rectData, rectangle);
+                this.ç¼–è¾‘åŒºå—(rectData, rectangle);
             }
         });
 
         rectangle.addEventListener('mousedown', (e) => {
             e.stopPropagation();
             if (!e.target.classList.contains('resize-handle')) {
-                this.¿ªÊ¼ÍÏ¶¯(e, rectData, screen);
+                this.å¼€å§‹æ‹–åŠ¨(e, rectData, screen);
             }
         });
 
@@ -153,7 +153,7 @@ class DualScreenApp {
     startResize(event, rectData, screen, handle) {
         event.preventDefault();
         this.isResizing = true;
-        this.Ñ¡ÖĞÇø¿é(rectData);
+        this.é€‰ä¸­åŒºå—(rectData);
 
         const rectangle = event.currentTarget.parentElement;
         const screenElement = screen === 'A' ? this.screenA : this.screenB;
@@ -270,7 +270,7 @@ class DualScreenApp {
                     const rectIndex = this.rectangles.findIndex(rect => rect.id === rectData.id);
                     if (rectIndex !== -1) {
                         this.rectangles[rectIndex] = result.rectangle;
-                        this.»æÖÆËùÓĞÇø¿é();
+                        this.ç»˜åˆ¶æ‰€æœ‰åŒºå—();
                     }
                 }
             } catch (error) {
@@ -282,7 +282,7 @@ class DualScreenApp {
         document.addEventListener('mouseup', handleMouseUp);
     }
 
-    Ñ¡ÖĞÇø¿é(rectData) {
+    é€‰ä¸­åŒºå—(rectData) {
         document.querySelectorAll('.rectangle.selected').forEach(rect => {
             rect.classList.remove('selected');
         });
@@ -296,7 +296,7 @@ class DualScreenApp {
         }
     }
 
-    async É¾³ıÇø¿é(id) {
+    async åˆ é™¤åŒºå—(id) {
         try {
             const response = await fetch(`/api/rectangles/${id}`, {
                 method: 'DELETE'
@@ -306,14 +306,14 @@ class DualScreenApp {
             if (result.success) {
                 this.rectangles = this.rectangles.filter(rect => rect.id !== id);
                 this.selectedRectangle = null;
-                this.»æÖÆËùÓĞÇø¿é();
+                this.ç»˜åˆ¶æ‰€æœ‰åŒºå—();
             }
         } catch (error) {
             console.error('Failed to delete rectangle:', error);
         }
     }
 
-    ±à¼­Çø¿é(rectData, rectangleElement) {
+    ç¼–è¾‘åŒºå—(rectData, rectangleElement) {
         if (this.editingRectangle) return;
 
         this.editingRectangle = rectData;
@@ -335,7 +335,7 @@ class DualScreenApp {
         const finishEditing = async () => {
             const newText = input.value;
             if (newText !== rectData.text) {
-                await this.¸üĞÂÇø¿éÎÄ±¾(rectData.id, newText);
+                await this.æ›´æ–°åŒºå—æ–‡æœ¬(rectData.id, newText);
             }
             input.remove();
             this.editingRectangle = null;
@@ -353,7 +353,7 @@ class DualScreenApp {
         });
     }
 
-    async ¸üĞÂÇø¿éÎÄ±¾(id, newText) {
+    async æ›´æ–°åŒºå—æ–‡æœ¬(id, newText) {
         try {
             const response = await fetch(`/api/rectangles/${id}`, {
                 method: 'PUT',
@@ -368,7 +368,7 @@ class DualScreenApp {
                 const rectIndex = this.rectangles.findIndex(rect => rect.id === id);
                 if (rectIndex !== -1) {
                     this.rectangles[rectIndex] = result.rectangle;
-                    this.»æÖÆËùÓĞÇø¿é();
+                    this.ç»˜åˆ¶æ‰€æœ‰åŒºå—();
                 }
             }
         } catch (error) {
@@ -376,14 +376,14 @@ class DualScreenApp {
         }
     }
 
-    ¿ªÊ¼ÍÏ¶¯(event, rectData, screen) {
+    å¼€å§‹æ‹–åŠ¨(event, rectData, screen) {
         if (this.isResizing) return;
 
         event.preventDefault();
         event.stopPropagation();
 
         this.isDragging = true;
-        this.Ñ¡ÖĞÇø¿é(rectData);
+        this.é€‰ä¸­åŒºå—(rectData);
 
         const rectangle = event.currentTarget;
         const screenElement = screen === 'A' ? this.screenA : this.screenB;
