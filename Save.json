@@ -45,8 +45,8 @@
       "text": "声望线：人人喊打\n被宣布为魔教",
       "screenA_x": 651,
       "screenA_y": 261,
-      "screenB_x": 227,
-      "screenB_y": 818
+      "screenB_x": 233.75,
+      "screenB_y": 817.5
     },
     {
       "id": "1747712181726",
@@ -91,22 +91,22 @@
       "width": 155,
       "height": 60,
       "text": "建设线：流浪居民区",
-      "screenA_x": 69,
-      "screenA_y": 493,
-      "screenB_x": 92,
-      "screenB_y": 598
+      "screenA_x": 70,
+      "screenA_y": 493.3333333333333,
+      "screenB_x": 91.11111111111111,
+      "screenB_y": 597.7777777777777
     },
     {
       "id": "1747712602987",
       "x": 125,
       "y": 507,
-      "width": 133,
-      "height": 60,
+      "width": 203,
+      "height": 71,
       "text": "建设线：内城玩家区，外城居民区",
-      "screenA_x": 368,
-      "screenA_y": 469,
-      "screenB_x": 80,
-      "screenB_y": 707
+      "screenA_x": 61,
+      "screenA_y": 588,
+      "screenB_x": 90,
+      "screenB_y": 715
     },
     {
       "id": "1747712643325",
