@@ -11,11 +11,14 @@
         this.screenA = document.getElementById('screenA');
         this.screenB = document.getElementById('screenB');
 
-        this.scaleA = 1; // 左屏缩放比例
-        this.scaleB = 1; // 右屏缩放比例
-        this.minScale = 0.5; // 最小缩放比例
-        this.maxScale = 2; // 最大缩放比例
-        this.scaleStep = 0.1; // 每次缩放步长
+        this.scaleA = 1;
+        this.scaleB = 1;
+        this.scaleStep = 0.1;
+
+        this.isPanning = false;
+        this.panStart = { x: 0, y: 0 };
+        this.panOffsetA = { x: 0, y: 0 };
+        this.panOffsetB = { x: 0, y: 0 };
 
         this.init();
     }
@@ -24,6 +27,7 @@
         await this.读档();
         this.绘制所有区块();
         this.initZoom();
+        this.initPan();
     }
     注册快捷键() {
         this.screenA.addEventListener('dblclick', (e) => this.创建区块(e, 'A'));//新建区块
@@ -170,6 +174,7 @@
 
         const rectangle = event.currentTarget.parentElement;
         const screenElement = screen === 'A' ? this.screenA : this.screenB;
+        const scale = screen === 'A' ? this.scaleA : this.scaleB;
 
         this.resizeData = {
             handle: handle,
@@ -177,16 +182,16 @@
             startY: event.clientY,
             startWidth: rectData.width,
             startHeight: rectData.height,
-            startLeft: parseInt(rectangle.style.left) || 0,
-            startTop: parseInt(rectangle.style.top) || 0
+            startLeft: parseInt(rectangle.style.left) / scale || 0,
+            startTop: parseInt(rectangle.style.top) / scale || 0
         };
 
         const handleMouseMove = (e) => {
             if (!this.isResizing) return;
             e.preventDefault();
 
-            const deltaX = e.clientX - this.resizeData.startX;
-            const deltaY = e.clientY - this.resizeData.startY;
+            const deltaX = (e.clientX - this.resizeData.startX) / scale;
+            const deltaY = (e.clientY - this.resizeData.startY) / scale;
 
             let newWidth = this.resizeData.startWidth;
             let newHeight = this.resizeData.startHeight;
@@ -230,8 +235,8 @@
                     break;
             }
 
-            const screenWidth = screenElement.clientWidth;
-            const screenHeight = screenElement.clientHeight;
+            const screenWidth = screenElement.clientWidth / scale;
+            const screenHeight = screenElement.clientHeight / scale;
 
             newLeft = Math.max(0, Math.min(newLeft, screenWidth - newWidth));
             newTop = Math.max(0, Math.min(newTop, screenHeight - newHeight));
@@ -240,8 +245,8 @@
 
             rectangle.style.width = `${newWidth}px`;
             rectangle.style.height = `${newHeight}px`;
-            rectangle.style.left = `${newLeft}px`;
-            rectangle.style.top = `${newTop}px`;
+            rectangle.style.left = `${newLeft * scale}px`;
+            rectangle.style.top = `${newTop * scale}px`;
         };
 
         const handleMouseUp = async () => {
@@ -400,11 +405,12 @@
 
         const rectangle = event.currentTarget;
         const screenElement = screen === 'A' ? this.screenA : this.screenB;
+        const scale = screen === 'A' ? this.scaleA : this.scaleB;
         const screenRect = screenElement.getBoundingClientRect();
 
         const rectRect = rectangle.getBoundingClientRect();
-        this.dragOffset.x = event.clientX - rectRect.left;
-        this.dragOffset.y = event.clientY - rectRect.top;
+        this.dragOffset.x = (event.clientX - rectRect.left) / scale;
+        this.dragOffset.y = (event.clientY - rectRect.top) / scale;
 
         rectangle.style.zIndex = '1000';
         rectangle.style.cursor = 'grabbing';
@@ -413,19 +419,19 @@
             if (!this.isDragging || this.isResizing) return;
             e.preventDefault();
 
-            const newX = e.clientX - screenRect.left - this.dragOffset.x;
-            const newY = e.clientY - screenRect.top - this.dragOffset.y;
+            const newX = (e.clientX - screenRect.left) / scale - this.dragOffset.x;
+            const newY = (e.clientY - screenRect.top) / scale - this.dragOffset.y;
 
-            const screenWidth = screenElement.clientWidth;
-            const screenHeight = screenElement.clientHeight;
-            const rectWidth = rectangle.offsetWidth;
-            const rectHeight = rectangle.offsetHeight;
+            const screenWidth = screenElement.clientWidth / scale;
+            const screenHeight = screenElement.clientHeight / scale;
+            const rectWidth = rectangle.offsetWidth / scale;
+            const rectHeight = rectangle.offsetHeight / scale;
 
             const constrainedX = Math.max(0, Math.min(newX, screenWidth - rectWidth));
             const constrainedY = Math.max(0, Math.min(newY, screenHeight - rectHeight));
 
-            rectangle.style.left = `${constrainedX}px`;
-            rectangle.style.top = `${constrainedY}px`;
+            rectangle.style.left = `${constrainedX * scale}px`;
+            rectangle.style.top = `${constrainedY * scale}px`;
         };
 
         const handleMouseUp = async (e) => {
@@ -493,7 +499,7 @@
     handleZoom(event, screen) {
         const delta = event.deltaY > 0 ? -this.scaleStep : this.scaleStep;
         const currentScale = screen === 'A' ? this.scaleA : this.scaleB;
-        const newScale = Math.max(this.minScale, Math.min(this.maxScale, currentScale + delta));
+        const newScale = currentScale + delta;
 
         if (screen === 'A') {
             this.scaleA = newScale;
@@ -526,6 +532,57 @@
                 rect.style.top = `${y * scale}px`;
             }
         });
+    }
+
+    initPan() {
+        // 为左右屏添加右键拖动事件
+        [this.screenA, this.screenB].forEach(screen => {
+            screen.addEventListener('contextmenu', (e) => e.preventDefault());
+            screen.addEventListener('mousedown', (e) => {
+                if (e.button === 2) { // 右键
+                    this.startPan(e, screen);
+                }
+            });
+        });
+    }
+
+    startPan(event, screen) {
+        event.preventDefault();
+        this.isPanning = true;
+        this.panStart = { x: event.clientX, y: event.clientY };
+
+        const panOffset = screen === this.screenA ? this.panOffsetA : this.panOffsetB;
+        const screenElement = screen;
+
+        const handleMouseMove = (e) => {
+            if (!this.isPanning) return;
+
+            const deltaX = e.clientX - this.panStart.x;
+            const deltaY = e.clientY - this.panStart.y;
+
+            panOffset.x += deltaX;
+            panOffset.y += deltaY;
+
+            this.panStart = { x: e.clientX, y: e.clientY };
+
+            // 更新所有矩形的位置
+            const rectangles = screenElement.querySelectorAll('.rectangle');
+            rectangles.forEach(rect => {
+                const currentLeft = parseFloat(rect.style.left) || 0;
+                const currentTop = parseFloat(rect.style.top) || 0;
+                rect.style.left = `${currentLeft + deltaX}px`;
+                rect.style.top = `${currentTop + deltaY}px`;
+            });
+        };
+
+        const handleMouseUp = () => {
+            this.isPanning = false;
+            document.removeEventListener('mousemove', handleMouseMove);
+            document.removeEventListener('mouseup', handleMouseUp);
+        };
+
+        document.addEventListener('mousemove', handleMouseMove);
+        document.addEventListener('mouseup', handleMouseUp);
     }
 }
 

@@ -24,11 +24,16 @@ body {
     overflow: hidden;
     cursor: crosshair;
     transform-origin: top left;
+    user-select: none;
 }
 
 .screen.focus {
     border-color: #007bff;
     box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
+}
+
+.screen.panning {
+    cursor: grabbing;
 }
 
 .screen-label {
