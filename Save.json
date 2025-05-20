@@ -7,8 +7,8 @@
       "width": 145,
       "height": 60,
       "text": "声望线：默默无闻",
-      "screenA_x": 652.5,
-      "screenA_y": 71.25,
+      "screenA_x": 268,
+      "screenA_y": 481,
       "screenB_x": 210,
       "screenB_y": 97
     },
@@ -31,8 +31,8 @@
       "width": 153,
       "height": 65,
       "text": "声望线：小有名声\n清缴悍匪，百姓爱戴",
-      "screenA_x": 640,
-      "screenA_y": 165,
+      "screenA_x": 261,
+      "screenA_y": 585,
       "screenB_x": 212,
       "screenB_y": 329
     },
@@ -43,8 +43,8 @@
       "width": 145,
       "height": 60,
       "text": "声望线：人人喊打\n被宣布为魔教",
-      "screenA_x": 651,
-      "screenA_y": 261,
+      "screenA_x": 262,
+      "screenA_y": 686,
       "screenB_x": 233.75,
       "screenB_y": 817.5
     },
@@ -55,8 +55,8 @@
       "width": 156,
       "height": 60,
       "text": "声望线：位面之巅\n击败帝国，加冕为王",
-      "screenA_x": 661,
-      "screenA_y": 362,
+      "screenA_x": 238,
+      "screenA_y": 771,
       "screenB_x": 226,
       "screenB_y": 899
     },

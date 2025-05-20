@@ -39,14 +39,16 @@ export class InteractionManager {
     }
 
     选中区块(rectData) {
-        // 清除所有选中状态
-        document.querySelectorAll('.rectangle.selected, .rectangle.multi-selected').forEach(rect => {
-            rect.classList.remove('selected', 'multi-selected');
-        });
+        // 如果没有按住Ctrl键，且不是框选状态，则清除所有选中状态
+        if (!event.ctrlKey && !this.app.isSelecting && !this.app.isDragging) {
+            document.querySelectorAll('.rectangle.selected, .rectangle.multi-selected').forEach(rect => {
+                rect.classList.remove('selected', 'multi-selected');
+            });
+            this.app.selectedRectangles.clear();
+        }
 
         if (!rectData) {
             this.app.selectedRectangle = null;
-            this.app.selectedRectangles.clear();
             return;
         }
 
@@ -61,6 +63,7 @@ export class InteractionManager {
             // 单选模式
             this.app.selectedRectangle = rectData;
             this.app.selectedRectangles.clear();
+            this.app.selectedRectangles.add(rectData.id);
             document.querySelectorAll(`[data-id="${rectData.id}"]`).forEach(rect => {
                 rect.classList.add('selected');
             });
@@ -72,6 +75,14 @@ export class InteractionManager {
         this.app.isSelecting = true;
         const screenRect = this.app.screenA.getBoundingClientRect();
         const scale = this.app.scaleA;
+
+        // 如果按住Ctrl键，不清除现有选择
+        if (!event.ctrlKey) {
+            this.app.selectedRectangles.clear();
+            document.querySelectorAll('.rectangle.multi-selected').forEach(rect => {
+                rect.classList.remove('multi-selected');
+            });
+        }
 
         this.app.selectionBox = {
             startX: (event.clientX - screenRect.left) / scale,
@@ -112,6 +123,11 @@ export class InteractionManager {
             selectionBox.remove();
             document.removeEventListener('mousemove', handleMouseMove);
             document.removeEventListener('mouseup', handleMouseUp);
+
+            // 如果框选结束时没有选中任何矩形，且没有按住Ctrl键，则清除所有选择
+            if (this.app.selectedRectangles.size === 0 && !event.ctrlKey) {
+                this.选中区块(null);
+            }
         };
 
         document.addEventListener('mousemove', handleMouseMove);
@@ -298,7 +314,17 @@ export class InteractionManager {
         event.stopPropagation();
 
         this.app.isDragging = true;
-        this.选中区块(rectData);
+
+        // 如果当前矩形不在选中集合中，且没有按住Ctrl键，则清除其他选择
+        if (!this.app.selectedRectangles.has(rectData.id) && !event.ctrlKey) {
+            this.选中区块(rectData);
+        } else if (!this.app.selectedRectangles.has(rectData.id)) {
+            // 如果按住Ctrl键，则添加到选中集合
+            this.app.selectedRectangles.add(rectData.id);
+            document.querySelectorAll(`[data-id="${rectData.id}"]`).forEach(rect => {
+                rect.classList.add('multi-selected');
+            });
+        }
 
         const rectangle = event.currentTarget;
         const screenElement = screen === 'A' ? this.app.screenA : this.app.screenB;
@@ -310,19 +336,12 @@ export class InteractionManager {
         this.app.dragOffset.y = (event.clientY - rectRect.top) / scale;
 
         // 记录所有选中矩形的初始位置
-        const selectedRects = this.app.selectedRectangles.size > 0
-            ? Array.from(this.app.selectedRectangles).map(id => ({
-                id,
-                element: document.querySelector(`[data-id="${id}"][data-screen="${screen}"]`),
-                initialLeft: parseInt(document.querySelector(`[data-id="${id}"][data-screen="${screen}"]`).style.left) / scale,
-                initialTop: parseInt(document.querySelector(`[data-id="${id}"][data-screen="${screen}"]`).style.top) / scale
-            }))
-            : [{
-                id: rectData.id,
-                element: rectangle,
-                initialLeft: parseInt(rectangle.style.left) / scale,
-                initialTop: parseInt(rectangle.style.top) / scale
-            }];
+        const selectedRects = Array.from(this.app.selectedRectangles).map(id => ({
+            id,
+            element: document.querySelector(`[data-id="${id}"][data-screen="${screen}"]`),
+            initialLeft: parseInt(document.querySelector(`[data-id="${id}"][data-screen="${screen}"]`).style.left) / scale,
+            initialTop: parseInt(document.querySelector(`[data-id="${id}"][data-screen="${screen}"]`).style.top) / scale
+        }));
 
         selectedRects.forEach(rect => {
             rect.element.style.zIndex = '1000';
