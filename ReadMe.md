@@ -3,7 +3,7 @@
 ## 项目结构
 
 ```
-JS/
+JS_Novel/
 ├── server.js          # Express服务器（后端）
 ├── package.json       # 项目配置
 ├── Save.json          # 数据存储文件（自动生成）
@@ -13,12 +13,12 @@ JS/
 
 ## 安装和运行
 
-1. 拷贝本仓库到你的某个路径，例如 D:/Desktop/JS
+1. 拷贝本仓库到你的某个路径，例如 D:/Desktop/JS_Novel
 
 2. 启动CMD，然后在其中CD到本路径，例如：
 ```bash
 D:
-cd D:/Desktop/JS
+cd D:/Desktop/JS_Novel
 ```
 
 3. 安装依赖：
