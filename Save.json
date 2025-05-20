@@ -7,8 +7,8 @@
       "width": 145,
       "height": 60,
       "text": "声望线：默默无闻",
-      "screenA_x": 633,
-      "screenA_y": 69,
+      "screenA_x": 652.5,
+      "screenA_y": 71.25,
       "screenB_x": 210,
       "screenB_y": 97
     },
@@ -115,8 +115,8 @@
       "width": 154,
       "height": 60,
       "text": "建设线：农业区",
-      "screenA_x": 59,
-      "screenA_y": 318,
+      "screenA_x": 40,
+      "screenA_y": 311.25,
       "screenB_x": 92,
       "screenB_y": 407
     },

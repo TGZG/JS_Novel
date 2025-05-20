@@ -8,8 +8,16 @@ export class DualScreenApp {
         // Core properties
         this.rectangles = [];
         this.selectedRectangle = null;
+        this.selectedRectangles = new Set();
         this.isDragging = false;
         this.isResizing = false;
+        this.isSelecting = false;
+        this.selectionBox = {
+            startX: 0,
+            startY: 0,
+            currentX: 0,
+            currentY: 0
+        };
         this.dragOffset = { x: 0, y: 0 };
         this.resizeData = { handle: '', startX: 0, startY: 0, startWidth: 0, startHeight: 0, startLeft: 0, startTop: 0 };
         this.editingRectangle = null;

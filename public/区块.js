@@ -118,7 +118,7 @@ export class RectangleManager {
     }
 
     编辑区块(rectData, rectangleElement) {
-        if (this.app.editingRectangle) return;
+        if (this.app.editingRectangle || this.app.selectedRectangles.size > 0) return;
 
         this.app.editingRectangle = rectData;
         const rect = rectangleElement.getBoundingClientRect();
