@@ -11,12 +11,19 @@
         this.screenA = document.getElementById('screenA');
         this.screenB = document.getElementById('screenB');
 
+        this.scaleA = 1; // 左屏缩放比例
+        this.scaleB = 1; // 右屏缩放比例
+        this.minScale = 0.5; // 最小缩放比例
+        this.maxScale = 2; // 最大缩放比例
+        this.scaleStep = 0.1; // 每次缩放步长
+
         this.init();
     }
     async init() {
         this.注册快捷键();
         await this.读档();
         this.绘制所有区块();
+        this.initZoom();
     }
     注册快捷键() {
         this.screenA.addEventListener('dblclick', (e) => this.创建区块(e, 'A'));//新建区块
@@ -49,8 +56,11 @@
         if (event.target.classList.contains('rectangle')) return;
 
         const rect = screen === 'A' ? this.screenA.getBoundingClientRect() : this.screenB.getBoundingClientRect();
-        const x = event.clientX - rect.left;
-        const y = event.clientY - rect.top;
+        const scale = screen === 'A' ? this.scaleA : this.scaleB;
+
+        // 考虑缩放因素计算实际位置
+        const x = (event.clientX - rect.left) / scale;
+        const y = (event.clientY - rect.top) / scale;
 
         const newRectangle = {
             x: x,
@@ -96,13 +106,16 @@
         rectangle.dataset.id = rectData.id;
         rectangle.dataset.screen = screen;
 
+        const scale = screen === 'A' ? this.scaleA : this.scaleB;
         const x = screen === 'A' ? rectData.screenA_x : rectData.screenB_x;
         const y = screen === 'A' ? rectData.screenA_y : rectData.screenB_y;
 
-        rectangle.style.left = `${x}px`;
-        rectangle.style.top = `${y}px`;
+        rectangle.style.left = `${x * scale}px`;
+        rectangle.style.top = `${y * scale}px`;
         rectangle.style.width = `${rectData.width}px`;
         rectangle.style.height = `${rectData.height}px`;
+        rectangle.style.transform = `scale(${scale})`;
+        rectangle.style.transformOrigin = 'top left';
 
         const textElement = document.createElement('div');
         textElement.className = 'rectangle-text';
@@ -461,6 +474,58 @@
 
         document.addEventListener('mousemove', handleMouseMove);
         document.addEventListener('mouseup', handleMouseUp);
+    }
+
+    initZoom() {
+        // 为左屏添加滚轮事件
+        this.screenA.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            this.handleZoom(e, 'A');
+        });
+
+        // 为右屏添加滚轮事件
+        this.screenB.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            this.handleZoom(e, 'B');
+        });
+    }
+
+    handleZoom(event, screen) {
+        const delta = event.deltaY > 0 ? -this.scaleStep : this.scaleStep;
+        const currentScale = screen === 'A' ? this.scaleA : this.scaleB;
+        const newScale = Math.max(this.minScale, Math.min(this.maxScale, currentScale + delta));
+
+        if (screen === 'A') {
+            this.scaleA = newScale;
+            this.applyZoom('A');
+        } else {
+            this.scaleB = newScale;
+            this.applyZoom('B');
+        }
+    }
+
+    applyZoom(screen) {
+        const scale = screen === 'A' ? this.scaleA : this.scaleB;
+        const screenElement = screen === 'A' ? this.screenA : this.screenB;
+
+        // 获取所有矩形
+        const rectangles = screenElement.querySelectorAll('.rectangle');
+
+        rectangles.forEach(rect => {
+            const rectData = this.rectangles.find(r => r.id === rect.dataset.id);
+            if (rectData) {
+                // 计算缩放后的位置和大小
+                const x = screen === 'A' ? rectData.screenA_x : rectData.screenB_x;
+                const y = screen === 'A' ? rectData.screenA_y : rectData.screenB_y;
+
+                rect.style.transform = `scale(${scale})`;
+                rect.style.transformOrigin = 'top left';
+
+                // 调整位置以适应缩放
+                rect.style.left = `${x * scale}px`;
+                rect.style.top = `${y * scale}px`;
+            }
+        });
     }
 }
 
